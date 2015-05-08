@@ -89,6 +89,12 @@ if !exists("g:JavaImpDocViewer")
     let g:JavaImpDocViewer = "w3m"
 endif
 
+" Removes unused imports during sort if 1. 
+" Defaults to 0.
+if !exists("g:JavaImpSortRemoveUnused")
+    let g:JavaImpSortRemoveUnused = 0
+endif
+
 " -------------------------------------------------------------------  
 " Generating the imports table
 " -------------------------------------------------------------------  
@@ -680,6 +686,9 @@ function! <SID>JavaImpSort()
     if (hasImport == 0)
         echom "No import statement found."
     else
+        if (g:JavaImpSortRemoveUnused == 1)
+            call <SID>JavaImpRemoveUnused()
+        endif
         let firstImp = line(".")
         call <SID>JavaImpGotoLast()
         let lastImp = line(".")
@@ -799,6 +808,41 @@ endfunction
 " Remove empty lines in the range
 function! <SID>JavaImpRemoveEmpty(fromLine, toLine)
     silent exe "" . a:fromLine . "," . a:toLine . ' g/^\s*$/d'
+endfunction
+
+" Remove unused imports
+function! <SID>JavaImpRemoveUnused()
+    " split and jump
+    split
+    call <SID>JavaImpGotoFirst()
+    let firstImp = line(".")
+    call <SID>JavaImpGotoLast()
+    let lastImp = line(".")
+
+    let index = firstImp
+    while index <= lastImp
+        let pattern = '\s*import\s*.*\.\([^.]*\);$'
+        " we extract the class name from the line
+        let className = substitute(getline(index), pattern, '\1', "")
+        if (match(className, '\*') == 0)
+            " star import, we leave it
+            let match = 1
+        else
+            call cursor(index + 1, 0)
+            " we look for the class name in the file
+            let match = search('\<' . className . '\>', 'Wn')
+        endif
+        if (!match)
+            " delete the line
+            exe index . ' delete'
+            " update index of the last import
+            let lastImp = lastImp - 1
+        else
+            let index = index + 1
+        endif
+    endwhile
+    " close split
+    close
 endfunction
 
 " -------------------------------------------------------------------  
