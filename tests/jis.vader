@@ -13,6 +13,7 @@ Given (Some Java and Non-Java imports):
 Execute (Sort them with newline at depth 0):
   let g:JavaImpTopImports = ['java\..*', 'javax\..*', 'org\..*', 'com\..*']
   let g:JavaImpSortPkgSep = 0
+  let g:JavaImpSortRemoveUnused = 0
   JIS
 
 Expect (Sorted list of Java and Non-Java Imports):
@@ -39,6 +40,7 @@ Given (Some Java and Non-Java imports):
 
 Execute (Sort them with newline at depth 1):
   let g:JavaImpSortPkgSep = 1
+  let g:JavaImpSortRemoveUnused = 0
   JIS
 
 Expect (Sorted list of Java and Non-Java Imports):
@@ -66,6 +68,7 @@ Given (Some Java and Non-Java imports):
 
 Execute (Sort them with newline at depth 2):
   let g:JavaImpSortPkgSep = 2
+  let g:JavaImpSortRemoveUnused = 0
   JIS
 
 Expect (Sorted list of Java and Non-Java Imports):
@@ -92,6 +95,7 @@ Given (Only 1 Java Import):
 
 Execute (Sort them with newline at depth 1):
   let g:JavaImpSortPkgSep = 1
+  let g:JavaImpSortRemoveUnused = 0
   JIS
 
 Expect (Sorted list of Java and Non-Java Imports):
@@ -115,6 +119,7 @@ Given (More than 1 Java Import, but only Java Imports.):
 
 Execute (Sort them with newline at depth 1):
   let g:JavaImpSortPkgSep = 1
+  let g:JavaImpSortRemoveUnused = 0
   JIS
 
 Expect (Sorted list of Java and Non-Java Imports):
@@ -164,6 +169,7 @@ Given (No package statement.):
 
 Execute (Sort them with newline at depth 1):
   let g:JavaImpSortPkgSep = 1
+  let g:JavaImpSortRemoveUnused = 0
   JIS
 
 Expect (Sorted list of Non-Java Imports, and still no package statement.):
@@ -188,6 +194,7 @@ Given (Empty Top Imports List):
 Execute (Sort them with newline at depth 0 and with no Top Packages):
   let g:JavaImpSortPkgSep = 0
   let g:JavaImpTopImports = []
+  let g:JavaImpSortRemoveUnused = 0
   JIS
 
 Expect (Alphabetically Sorted list of Imports, and still no package statement.):
@@ -238,6 +245,7 @@ Given (Static Imports At Top):
 Execute (Sort Static Imports to the Top.):
   let g:JavaImpSortPkgSep = 0
   let g:JavaImpStaticImportsFirst = 1
+  let g:JavaImpSortRemoveUnused = 0
   JIS
 
 Expect (Static Imports Still At Top.):
@@ -263,6 +271,7 @@ Given (Static Imports At Top):
 Execute (Sort Static Imports to the Bottom.):
   let g:JavaImpSortPkgSep = 0
   let g:JavaImpStaticImportsFirst = 0
+  let g:JavaImpSortRemoveUnused = 0
   JIS
 
 Expect (Static Imports At Bottom.):
@@ -313,6 +322,7 @@ Given (Normal and Static Imports.):
 Execute (Sort Static Imports to the Top with a Package Separator for Normal Imports.):
   let g:JavaImpSortPkgSep = 1
   let g:JavaImpStaticImportsFirst = 1
+  let g:JavaImpSortRemoveUnused = 0
   JIS
 
 Expect (Static Imports At Bottom and still above class content.):
@@ -345,6 +355,7 @@ Given (Normal and Static Imports.):
 Execute (Sort Static Imports to the Bottom with a Package Separator for Normal Imports.):
   let g:JavaImpSortPkgSep = 1
   let g:JavaImpStaticImportsFirst = 0
+  let g:JavaImpSortRemoveUnused = 0
   JIS
 
 Expect (Static Imports At Bottom and still above class content.):
@@ -360,4 +371,46 @@ Expect (Static Imports At Bottom and still above class content.):
 
   class Foo {
 
+  }
+
+Given (Some Java, Non-Java, static, Non-static, Used, Unused imports):
+  package com.bar.baz.home;
+  
+  import java.io.BufferedReader;
+  import java.util.ArrayList;
+  import java.util.Map;
+
+  import com.bar.bang.baz;
+  import com.bar.bang.bax;
+
+  import static a;
+  import static java.util.Arrays.sort;
+
+  class Foo {
+    private BufferedReader reader;
+    private ArrayList list;
+    private baz field;
+    private int[] array = sort(new int[]);
+  }
+
+
+Execute (Sort them and remove the Unused imports):
+  let g:JavaImpSortRemoveUnused = 1
+  JIS
+
+Expect (Sorted list without the Unused imports):
+  package com.bar.baz.home;
+  
+  import java.io.BufferedReader;
+  import java.util.ArrayList;
+
+  import com.bar.bang.baz;
+
+  import static java.util.Arrays.sort;
+
+  class Foo {
+    private BufferedReader reader;
+    private ArrayList list;
+    private baz field;
+    private int[] array = sort(new int[]);
   }
